@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\FollowedNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -59,18 +60,29 @@ class AuthController extends Controller
 
     public function logout(Request $request)
     {
-        auth()->logout();
 
-        $request->session()->invalidate();
+        // O'qilmagan FollowedNotification larni olish
+        $unreadFollowedNotifications = auth()->user()->unreadNotifications->where('type', FollowedNotification::class);
 
-        $request->session()->regenerateToken();
+        // O'qilgan FollowedNotification larni olish
+        $readFollowedNotifications = auth()->user()->readNotifications->where('type', FollowedNotification::class);
 
-        return redirect('/');
+        // Barcha FollowedNotification lar
+        $allFollowedNotifications = auth()->user()->notifications->where('type', FollowedNotification::class);
+
     }
 
+    
     public function dashboard()
     {
-        return view('dashboard');
+        $users = User::all();
+        return view('dashboard', compact('users'));
+    }
+
+    public function userShow($id)
+    {
+        $user = User::find($id);
+        return view('user-show', compact('user'));
     }
 
 }

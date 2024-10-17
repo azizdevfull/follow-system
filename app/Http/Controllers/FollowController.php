@@ -3,22 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Notifications\FollowedNotification;
 use Illuminate\Http\Request;
 
 class FollowController extends Controller
 {
     // app/Http/Controllers/FollowController.php
 
-    public function follow(User $user)
+
+    public function follow($id)
     {
+        $user = User::find($id);
         auth()->user()->following()->attach($user->id);
-        return back()->with('success', 'You are now following ' . $user->name);
+        $user->notify(new FollowedNotification(auth()->user()));
+        return redirect()->back();
     }
 
-    public function unfollow(User $user)
+
+    public function unfollow($id)
     {
+        $user = User::find($id);
         auth()->user()->following()->detach($user->id);
-        return back()->with('success', 'You are no longer following ' . $user->name);
+        return redirect()->back();
     }
+
+
 
 }
